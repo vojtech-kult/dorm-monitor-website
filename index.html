@@ -308,7 +308,7 @@ function renderLoading(){
 function renderError(err){
   content.innerHTML = `
     <div class="state">
-      <div class="big">Tabuli se nepodařilo načíst</div>
+      <div class="big">Tabulku se nepodařilo načíst</div>
       <div>${err && err.message ? escapeHtml(err.message) : 'Zkontrolujte připojení a zkuste to znovu.'}</div>
       <button class="retry" id="retryBtn">Zkusit znovu</button>
     </div>`;
@@ -410,7 +410,8 @@ function renderData(payload){
 
 function load(){
   renderLoading();
-  fetch(DATA_URL)
+  const bustedUrl = DATA_URL + '?t=' + Date.now();
+  fetch(bustedUrl, { cache: 'no-store' })
     .then(res => {
       if(!res.ok) throw new Error('Server odpověděl chybou ' + res.status);
       return res.json();
