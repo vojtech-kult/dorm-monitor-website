@@ -50,6 +50,9 @@
     color: var(--amber);
     margin: 0 0 4px;
   }
+  a {
+    color: skyblue;
+  }
   h1{
     font-family:'Space Grotesk', sans-serif;
     font-weight: 700;
@@ -378,7 +381,7 @@ function renderData(payload){
       <section class="board">
         <div class="board-head">
           <h2>${escapeHtml(college.collegeName || 'Kolej')}</h2>
-          <span class="id">ID ${escapeHtml(String(college.id || ''))}</span>
+          <a href="https://rehos.cuni.cz/crpp/eshop/collegeDetail/${escapeHtml(String(college.id || ''))}">odkaz</a>
         </div>
         <table>
           <thead>
