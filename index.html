@@ -308,7 +308,7 @@ function renderLoading(){
 function renderError(err){
   content.innerHTML = `
     <div class="state">
-      <div class="big">Tabulku se nepodařilo načíst</div>
+      <div class="big">Tabuli se nepodařilo načíst</div>
       <div>${err && err.message ? escapeHtml(err.message) : 'Zkontrolujte připojení a zkuste to znovu.'}</div>
       <button class="retry" id="retryBtn">Zkusit znovu</button>
     </div>`;
@@ -344,7 +344,25 @@ function fmtAvail(room){
 
 function renderData(payload){
   const colleges = (payload && payload.data) || [];
-  if(colleges.length === 0){
+
+  if(payload && payload.sourcesDown){
+    document.getElementById('banner').innerHTML = `<div class="banner none-free">⚠️ Weby kolejí jsou momentálně nedostupné. Zobrazena jsou data z poslední úspěšné kontroly.</div>`;
+
+    if(colleges.length === 0){
+      content.innerHTML = `<div class="state"><div class="big">Weby kolejí jsou nedostupné</div><div>Zatím nemáme žádná data z předchozí úspěšné kontroly.</div></div>`;
+      if(payload && payload.updatedAt){
+        const d = new Date(payload.updatedAt);
+        if(!isNaN(d)){
+          updatedAtEl.textContent = 'Poslední pokus ' + d.toLocaleString('cs-CZ', {
+            day: 'numeric', month: 'numeric', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+          });
+        }
+      }
+      return;
+    }
+    // fall through to render the last-known-good data below the warning banner
+  } else if(colleges.length === 0){
     content.innerHTML = `<div class="state"><div class="big">Žádná data</div><div>Zdroj momentálně nevrací žádné koleje.</div></div>`;
     document.getElementById('banner').innerHTML = '';
     return;
@@ -362,10 +380,12 @@ function renderData(payload){
   });
 
   const bannerEl = document.getElementById('banner');
-  if(totalFree <= 0){
-    bannerEl.innerHTML = `<div class="banner none-free">Všechna místa jsou obsazená</div>`;
-  } else {
-    bannerEl.innerHTML = `<div class="banner has-free">Nalezeno ${totalFree} volných míst na kolejích ${escapeHtml(freeColleges.join(', '))}</div>`;
+  if(!(payload && payload.sourcesDown)){
+    if(totalFree <= 0){
+      bannerEl.innerHTML = `<div class="banner none-free">Všechna místa jsou obsazená</div>`;
+    } else {
+      bannerEl.innerHTML = `<div class="banner has-free">Nalezeno ${totalFree} volných míst na kolejích ${escapeHtml(freeColleges.join(', '))}</div>`;
+    }
   }
 
   content.innerHTML = colleges.map(college => {
